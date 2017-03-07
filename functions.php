@@ -9,7 +9,7 @@
  * @param $x
  */
 function x($x){
-    echo '<pre>';
+    echo '<pre style="box-shadow:0 0 0 8px rgba(0,0,0,.123)">';
     print_r($x);
     echo '</pre>';
 }
