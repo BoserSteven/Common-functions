@@ -86,7 +86,7 @@ function curl($url){
  * @param string $agent 是否设置cookie，默认为假，否则为真
  * @return mixed
  */
-function _curlGet($url, $charset = 'utf-8', $is_referer = false, $agent = 'pc'){
+function _curlGet2($url, $charset = 'utf-8', $is_referer = false, $agent = 'pc'){
     //初始化
     $ch = curl_init();
     //设置抓取的url
@@ -233,4 +233,49 @@ function debug($d, $file_name = 'debug.txt'){
         file_put_contents($file_name, $prefix . $d . $sufix);
     }
     file_put_contents($file_name, $old, FILE_APPEND);
+}
+
+/**
+ * curl post + ssl
+ * @param (string) $url
+ * @param (json) $data
+ * @return mixed
+ */
+function _curlPost($url, $data){
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);    // 跳过证书检查
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);    // 从证书中检查SSL加密算法是否存在
+    if(!empty($data)){
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    }
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    return $response;
+}
+
+/**
+ * curl get 请求
+ * @param $url      url地址
+ * @return mixed
+ */
+function _curlGet($url){
+    //初始化
+    $ch = curl_init();
+    //设置抓取的url
+    curl_setopt($ch, CURLOPT_URL, $url);
+    //设置头文件的信息作为数据流输出
+    curl_setopt($ch, CURLOPT_HEADER, 1);
+    //设置获取的信息以文件流的形式返回，而不是直接输出。
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);    // 跳过证书检查
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);    // 从证书中检查SSL加密算法是否存在
+
+    //执行命令
+    $data = curl_exec($ch);
+    //关闭URL请求
+    curl_close($ch);
+    return $data;
 }
