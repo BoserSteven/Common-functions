@@ -279,3 +279,50 @@ function _curlGet($url){
     curl_close($ch);
     return $data;
 }
+
+/**
+ * 获得树形结构html
+ * @param int $pid      父级ID
+ * @param int $level    层级
+ * @return string
+ * @throws \think\db\exception\DataNotFoundException
+ * @throws \think\db\exception\ModelNotFoundException
+ * @throws \think\exception\DbException
+ */
+function getCatHtml($pid = 0, $level = 0) {
+    $data = M('goods')->where(['goods_cat_pid' => $pid])->order('create_time', 'desc')->select();
+    static $tree = '';
+    $level++;
+    if (!empty($data)) {
+        foreach ($data as $v) {
+            $tree .= '<option value="' . $v['goods_cat_id'] . '">' . str_repeat('&nbsp;', ($level - 1) * 10) . '├ ' . $v['goods_cat_name'] . '</option>';
+            getCatHtml($v['goods_cat_id'], $level);
+        }
+    }
+    return $tree;
+}
+
+/**
+ * 获得分类树结构
+ * @param int $pid 父级iD
+ * @param int $level 层级 默认0
+ * @return array
+ * @throws \think\db\exception\DataNotFoundException
+ * @throws \think\db\exception\ModelNotFoundException
+ * @throws \think\exception\DbException
+ */
+function getCatTree($pid = 0, $level = 0) {
+    $data = M('goods')->where(['goods_cat_pid' => $pid])->order('create_time', 'desc')->select();
+    $level++;
+    if (!empty($data)) {
+        $tree = [];
+        foreach ($data as $val) {
+            $v['goods_cat_name'] = '|— ' . str_repeat('—', $level - 1) . $val['goods_cat_name'];
+            $v['goods_cat_id']   = $val['goods_cat_id'];
+            $v['child']          = getCatTree($val['goods_cat_id'], $level);
+            $v['level']          = $level;
+            $tree[]              = $v;
+        }
+    }
+    return $tree;
+}
